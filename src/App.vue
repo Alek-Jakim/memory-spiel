@@ -1,33 +1,37 @@
 <template>
   <div class="container">
     <h1>Memory-Spiel</h1>
-    <section class="spielbrett">
-      <Karte
-        v-for="(karte, idx) in karteList"
-        :key="`karte-${idx}`"
-        :value="karte"
+    <section class="board">
+      <Card
+        v-for="(card, idx) in cards"
+        :key="`card-${idx}`"
+        :value="card.value"
+        :visible="card.isShowing"
       />
     </section>
   </div>
 </template>
 
 <script>
-import Karte from "./components/Karte.vue";
+import Card from "./components/Card.vue";
 
 export default {
   name: "App",
   components: {
-    Karte,
+    Card,
   },
   setup() {
-    const karteList = [];
+    const cards = [];
 
     for (let i = 0; i < 16; i++) {
-      karteList.push(i);
+      cards.push({
+        value: i,
+        isShowing: false,
+      });
     }
 
     return {
-      karteList,
+      cards,
     };
   },
 };
@@ -58,12 +62,7 @@ export default {
   height: 100vh;
 }
 
-.karte {
-  border: 3px solid rgb(116, 116, 116);
-  border-radius: 10px;
-}
-
-.spielbrett {
+.board {
   margin-top: 50px;
   display: grid;
   grid-template-columns: 90px 90px 90px 90px;
