@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <h1>Memory-Spiel</h1>
+    <h3>{{ currStatus }}</h3>
     <section class="board">
       <!--this is the card component and I'm looping through to generate 16 cards, while passing the props, similar to react-->
       <Card
@@ -14,13 +15,12 @@
       />
 
       <!--<h2>{{ chosenCards }}</h2>-->
-      <h2>{{ currStatus }}</h2>
     </section>
   </div>
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Card from "./components/Card.vue";
 
 export default {
@@ -33,13 +33,28 @@ export default {
     //REACTIVE
     const cards = ref([]);
     const chosenCards = ref([]);
-    const currStatus = ref("");
+    const currStatus = computed(() => {
+      if (cardPairsRemaining.value === 0) {
+        return "You Won! Congratulations!";
+      } else {
+        return `Card Pairs Remaining - ${cardPairsRemaining.value}`;
+      }
+    });
 
-    for (let i = 0; i < 25; i++) {
+    //
+    const cardPairsRemaining = computed(() => {
+      const cardsRemaining = cards.value.filter(
+        (card) => card.isCorrect === false
+      ).length;
+
+      return cardsRemaining / 2;
+    });
+
+    for (let i = 0; i < 16; i++) {
       //I thought it was best to create an object instead of separately pushing the values
       //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
       cards.value.push({
-        value: i,
+        value: 10,
         isVisible: false,
         position: i,
         isCorrect: false,
@@ -109,8 +124,10 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #a1cdf8;
   margin-top: 60px;
+  background-color: #250943;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect x='0' y='0' width='46' height='46' fill-opacity='0.6' fill='%23280464'/%3E%3C/svg%3E");
 }
 
 .container {
@@ -125,8 +142,8 @@ export default {
 .board {
   margin-top: 50px;
   display: grid;
-  grid-template-columns: 90px 90px 90px 90px 90px;
-  grid-template-rows: 90px 90px 90px 90px 90px;
+  grid-template-columns: 90px 90px 90px 90px;
+  grid-template-rows: 90px 90px 90px 90px;
   grid-column-gap: 30px;
   grid-row-gap: 30px;
   justify-content: center;
