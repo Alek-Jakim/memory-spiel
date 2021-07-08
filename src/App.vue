@@ -8,15 +8,19 @@
         :key="`card-${idx}`"
         :value="card.value"
         :position="card.position"
-        :visible="card.visible"
-        @select-card="flipCard"
+        :isVisible="card.isVisible"
+        :isCorrect="card.isCorrect"
+        @select-card="toggleFlipCard"
       />
+
+      <!--<h2>{{ chosenCards }}</h2>-->
+      <h2>{{ currStatus }}</h2>
     </section>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import Card from "./components/Card.vue";
 
 export default {
@@ -26,28 +30,68 @@ export default {
   },
   setup() {
     //wrap the array with the ref method because this is not "reactive" as with react/svelte, this is just regular JS
+    //REACTIVE
     const cards = ref([]);
+    const chosenCards = ref([]);
+    const currStatus = ref("");
 
     for (let i = 0; i < 25; i++) {
       //I thought it was best to create an object instead of separately pushing the values
       //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
       cards.value.push({
         value: i,
-        visible: false,
+        isVisible: false,
         position: i,
+        isCorrect: false,
       });
     }
 
-    //The name is self-explanatory, it changes the payload isVisible to true
-    const flipCard = (payload) => {
+    //The name is self-explanatory, it changes the payload isisVisible to true
+    const toggleFlipCard = (payload) => {
       //you need to unpack the cards array with .value otherwise it gives you an error
-      cards.value[payload.position].visible =
-        !cards.value[payload.position].visible;
+      cards.value[payload.position].isVisible = true;
+      //!cards.value[payload.position].isVisible - if you wanna switch on/off;
+
+      chosenCards.value[0]
+        ? (chosenCards.value[1] = payload)
+        : (chosenCards.value[0] = payload);
     };
+
+    watch(
+      chosenCards,
+      (currVal) => {
+        //currVal stands for currentValue, I just prefer shorter names for arguments
+
+        if (currVal.length === 2) {
+          if (currVal[0].positionValue === currVal[1].positionValue) {
+            currStatus.value = "correct";
+
+            cards.value[currVal[0].position].isCorrect = true;
+            cards.value[currVal[1].position].isCorrect = true;
+          } else {
+            currStatus.value = "incorrect";
+
+            cards.value[currVal[0].position].isVisible = false;
+            cards.value[currVal[1].position].isVisible = false;
+          }
+
+          // currVal[0].positionValue === currVal[1].positionValue
+          //   ? (currStatus.value = "correct")
+          //   : (currStatus.value = "incorrect");
+
+          chosenCards.value.length = 0;
+        }
+      },
+
+      //you need to add deep: true to track the values in the array, otherwise nothing happens
+      { deep: true }
+    );
 
     return {
       cards,
-      flipCard,
+      toggleFlipCard,
+      chosenCards,
+      currStatus,
     };
   },
 };

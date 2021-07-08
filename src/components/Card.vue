@@ -1,6 +1,8 @@
 <template>
-  <div class="card" @click="selectCard">
-    <div v-if="visible" class="card-side card-front">FRONT</div>
+  <div class="card" @click="toggleSelectCard">
+    <div v-if="isVisible" class="card-side card-front">
+      FRONT - {{ isCorrect }}
+    </div>
     <div v-else class="card-side card-back">BACK</div>
   </div>
 </template>
@@ -16,21 +18,26 @@ export default {
       type: Number,
       required: true,
     },
-    visible: {
+    isVisible: {
+      type: Boolean,
+      default: false,
+    },
+    isCorrect: {
       type: Boolean,
       default: false,
     },
   },
   setup(props, context) {
     //Here I want to emit an event to the parent element, to know which card has been selected so we can pass the "props, context" arguments to the setup method
-    const selectCard = () => {
+    const toggleSelectCard = () => {
       context.emit("select-card", {
         position: props.position,
+        positionValue: props.value,
       });
     };
 
     return {
-      selectCard,
+      toggleSelectCard,
     };
   },
 };
