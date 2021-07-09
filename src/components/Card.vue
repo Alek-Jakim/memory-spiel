@@ -3,7 +3,7 @@
     <div v-if="isVisible" class="card-side card-front">
       {{ value }} - {{ position }}
     </div>
-    <div v-else class="card-side card-back">BACK</div>
+    <div v-else class="card-side card-back"></div>
   </div>
 </template>
 
@@ -45,8 +45,16 @@ export default {
 
 <style>
 .card {
-  border: 3px solid rgb(116, 116, 116);
   position: relative;
+}
+
+.card:hover {
+  border: 2px solid rgba(200, 138, 236, 0.7);
+  border-radius: 10px;
+}
+
+.card-side {
+  border-radius: 10px;
 }
 
 .card-side {
@@ -61,7 +69,8 @@ export default {
 }
 
 .card-side.card-back {
-  background: blue;
-  color: #fff;
+  background-image: url("/pictures/q-mark.png");
+  background-color: #000;
+  background-size: contain;
 }
 </style>

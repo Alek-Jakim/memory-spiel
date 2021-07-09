@@ -13,10 +13,10 @@
         :isCorrect="card.isCorrect"
         @select-card="toggleFlipCard"
       />
-      <button @click="shuffleCards">Shuffle Cards</button>
-      <button @click="restartGame">Restart</button>
+
       <!--<h2>{{ chosenCards }}</h2>-->
     </section>
+    <button @click="restartGame">Restart</button>
   </div>
 </template>
 
@@ -112,9 +112,23 @@ export default {
       cards.value[payload.position].isVisible = true;
       //!cards.value[payload.position].isVisible - if you wanna switch on/off;
 
-      chosenCards.value[0]
-        ? (chosenCards.value[1] = payload)
-        : (chosenCards.value[0] = payload);
+      if (chosenCards.value[0]) {
+        //If I clicked on the same card twice, it registered it as true so this if statement is to prevent that
+        if (
+          chosenCards.value[0].position === payload.position &&
+          chosenCards.value[0].positionValue === payload.positionValue
+        ) {
+          return;
+        }
+
+        chosenCards.value[1] = payload;
+      } else {
+        chosenCards.value[0] = payload;
+      }
+
+      // chosenCards.value[0]
+      //   ? (chosenCards.value[1] = payload)
+      //   : (chosenCards.value[0] = payload);
     };
 
     watch(
@@ -162,6 +176,8 @@ export default {
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap");
+
 * {
   padding: 0;
   margin: 0;
@@ -178,11 +194,11 @@ body {
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Source Code Pro", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #a1cdf8;
+  color: #fff;
   margin-top: 60px;
 }
 
@@ -196,11 +212,38 @@ body {
 
 .board {
   margin: 50px auto;
+  width: 100%;
   display: grid;
-  grid-template-columns: 90px 90px 90px 90px;
-  grid-template-rows: 90px 90px 90px 90px;
+  grid-template-columns: repeat(4, 90px);
+  grid-template-rows: repeat(4, 90px);
   grid-column-gap: 30px;
   grid-row-gap: 30px;
   justify-content: center;
+}
+
+/*
+.btn-container {
+  width: 400px;
+  margin: 30px auto;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: row;
+}
+*/
+button {
+  padding: 15px;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  border: none;
+  outline: none;
+  background: rgb(110, 51, 110);
+  color: #fff;
+  transition: 0.5s ease-in-out;
+}
+button:hover {
+  background: #fff;
+  color: rgb(110, 51, 110);
+  border-radius: 10px;
 }
 </style>
