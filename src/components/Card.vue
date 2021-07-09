@@ -1,6 +1,8 @@
 <template>
   <div class="card" @click="toggleSelectCard">
-    <div v-if="isVisible" class="card-side card-front">FRONT - {{ value }}</div>
+    <div v-if="isVisible" class="card-side card-front">
+      {{ value }} - {{ position }}
+    </div>
     <div v-else class="card-side card-back">BACK</div>
   </div>
 </template>

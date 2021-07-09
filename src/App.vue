@@ -43,7 +43,33 @@ export default {
       }
     });
 
-    //
+    const cardContent = [1, 2, 3, 4, 5, 6, 7, 8];
+
+    cardContent.forEach((element) => {
+      cards.value.push({
+        value: element,
+        isVisible: false,
+        position: null,
+        isCorrect: false,
+      });
+
+      cards.value.push({
+        value: element,
+        isVisible: false,
+        position: null,
+        isCorrect: false,
+      });
+    });
+
+    // Updates and aligns the position with the index
+    cards.value = cards.value.map((card, index) => {
+      return {
+        ...card,
+        position: index,
+      };
+    });
+
+    //re-evaluates the remaining card pairs
     const cardPairsRemaining = computed(() => {
       const cardsRemaining = cards.value.filter(
         (card) => card.isCorrect === false
@@ -69,16 +95,16 @@ export default {
       });
     };
 
-    for (let i = 0; i < 16; i++) {
-      //I thought it was best to create an object instead of separately pushing the values
-      //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
-      cards.value.push({
-        value: 8,
-        isVisible: false,
-        position: i,
-        isCorrect: false,
-      });
-    }
+    // for (let i = 0; i < 16; i++) {
+    //I thought it was best to create an object instead of separately pushing the values
+    //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
+    //   cards.value.push({
+    //     value: 8,
+    //     isVisible: false,
+    //     position: i,
+    //     isCorrect: false,
+    //   });
+    // }
 
     //The name is self-explanatory, it changes the payload isisVisible to true
     const toggleFlipCard = (payload) => {
@@ -97,12 +123,18 @@ export default {
         //currVal stands for currentValue, I just prefer shorter names for arguments
 
         if (currVal.length === 2) {
-          if (currVal[0].positionValue === currVal[1].positionValue) {
-            cards.value[currVal[0].position].isCorrect = true;
-            cards.value[currVal[1].position].isCorrect = true;
+          const firstCard = currVal[0];
+          const secondCard = currVal[1];
+
+          if (firstCard.positionValue === secondCard.positionValue) {
+            cards.value[firstCard.position].isCorrect = true;
+            cards.value[secondCard.position].isCorrect = true;
           } else {
-            cards.value[currVal[0].position].isVisible = false;
-            cards.value[currVal[1].position].isVisible = false;
+            //this makes it so that if you get match the wrong cards, the wrong card remains shortly revealed so the player has enough time to remember its position and try again
+            setTimeout(() => {
+              cards.value[firstCard.position].isVisible = false;
+              cards.value[secondCard.position].isVisible = false;
+            }, 2000);
           }
 
           // currVal[0].positionValue === currVal[1].positionValue
