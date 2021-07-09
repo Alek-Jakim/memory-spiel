@@ -13,13 +13,15 @@
         :isCorrect="card.isCorrect"
         @select-card="toggleFlipCard"
       />
-
+      <button @click="shuffleCards">Shuffle Cards</button>
+      <button @click="restartGame">Restart</button>
       <!--<h2>{{ chosenCards }}</h2>-->
     </section>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
 import { computed, ref, watch } from "vue";
 import Card from "./components/Card.vue";
 
@@ -50,11 +52,28 @@ export default {
       return cardsRemaining / 2;
     });
 
+    const shuffleCards = () => {
+      cards.value = _.shuffle(cards.value);
+    };
+
+    const restartGame = () => {
+      shuffleCards();
+
+      cards.value = cards.value.map((card, index) => {
+        return {
+          ...card,
+          isCorrect: false,
+          isVisible: false,
+          position: index,
+        };
+      });
+    };
+
     for (let i = 0; i < 16; i++) {
       //I thought it was best to create an object instead of separately pushing the values
       //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
       cards.value.push({
-        value: 10,
+        value: 8,
         isVisible: false,
         position: i,
         isCorrect: false,
@@ -79,13 +98,9 @@ export default {
 
         if (currVal.length === 2) {
           if (currVal[0].positionValue === currVal[1].positionValue) {
-            currStatus.value = "correct";
-
             cards.value[currVal[0].position].isCorrect = true;
             cards.value[currVal[1].position].isCorrect = true;
           } else {
-            currStatus.value = "incorrect";
-
             cards.value[currVal[0].position].isVisible = false;
             cards.value[currVal[1].position].isVisible = false;
           }
@@ -107,6 +122,8 @@ export default {
       toggleFlipCard,
       chosenCards,
       currStatus,
+      shuffleCards,
+      restartGame,
     };
   },
 };
@@ -119,6 +136,15 @@ export default {
   box-sizing: border-box;
 }
 
+body {
+  background-color: #250943;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect x='0' y='0' width='46' height='46' fill-opacity='0.6' fill='%23280464'/%3E%3C/svg%3E");
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -126,8 +152,6 @@ export default {
   text-align: center;
   color: #a1cdf8;
   margin-top: 60px;
-  background-color: #250943;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect x='0' y='0' width='46' height='46' fill-opacity='0.6' fill='%23280464'/%3E%3C/svg%3E");
 }
 
 .container {
@@ -136,11 +160,10 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
 }
 
 .board {
-  margin-top: 50px;
+  margin: 50px auto;
   display: grid;
   grid-template-columns: 90px 90px 90px 90px;
   grid-template-rows: 90px 90px 90px 90px;
