@@ -1,17 +1,18 @@
 <template>
-  <div class="card" @click="toggleSelectCard">
-    <div v-if="isVisible" class="card-side card-front">
-      {{ value }} - {{ position }}
+  <div class="card" :class="flipCard" @click="toggleSelectCard">
+    <div class="card-side card-front">
+      <img :src="`/pictures/${value}.png`" :alt="value" />
     </div>
-    <div v-else class="card-side card-back"></div>
+    <div class="card-side card-back"></div>
   </div>
 </template>
 
 <script>
+import { computed } from "vue";
 export default {
   props: {
     value: {
-      type: Number,
+      type: String,
       required: true,
     },
     position: {
@@ -26,8 +27,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    isStarted: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
+    const flipCard = computed(() => {
+      if (props.isVisible) return "flip-card";
+      return "";
+    });
+
     //Here I want to emit an event to the parent element, to know which card has been selected so we can pass the "props, context" arguments to the setup method
     const toggleSelectCard = () => {
       context.emit("select-card", {
@@ -37,6 +47,7 @@ export default {
     };
 
     return {
+      flipCard,
       toggleSelectCard,
     };
   },
@@ -46,31 +57,33 @@ export default {
 <style>
 .card {
   position: relative;
+  transition: 0.5s transform ease-in;
+  transform-style: preserve-3d;
 }
 
-.card:hover {
-  border: 2px solid rgba(200, 138, 236, 0.7);
-  border-radius: 10px;
+.card.flip-card {
+  transform: rotateY(180deg);
 }
 
-.card-side {
-  border-radius: 10px;
+.card-side.card-front {
+  transform: rotateY(180deg);
+  width: 100%;
+  height: 100%;
+  background-color: #000;
 }
 
 .card-side {
   width: 100%;
   height: 100%;
   position: absolute;
-}
-
-.card-side.card-front {
-  background: red;
-  color: #fff;
+  border: 2px solid #000;
 }
 
 .card-side.card-back {
   background-image: url("/pictures/q-mark.png");
   background-color: #000;
+  width: 100%;
+  height: 100%;
   background-size: contain;
 }
 </style>
