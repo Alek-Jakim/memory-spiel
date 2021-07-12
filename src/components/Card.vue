@@ -81,7 +81,7 @@ export default {
 
 .card-side.card-back {
   background-image: url("/pictures/q-mark.png");
-  background-color: #000;
+  background-color: rgb(185, 185, 185);
   width: 100%;
   height: 100%;
   background-size: contain;

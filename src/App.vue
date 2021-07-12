@@ -1,7 +1,9 @@
 <template>
   <div class="container">
     <h1>Memory-Spiel</h1>
-    <h3 class="info">Click the "New Game" button to start/restart the game.</h3>
+    <h3 v-if="!isStarted" class="info">
+      Click the "New Game" button to start/restart the game.
+    </h3>
     <section class="board">
       <!--this is the card component and I'm looping through to generate 16 cards, while passing the props, similar to react-->
       <Card
@@ -39,12 +41,15 @@ export default {
     const startSound = new Audio("/sounds/start.wav");
     const correctAnswer = new Audio("/sounds/correct.wav");
     const wrongAnswer = new Audio("/sounds/wrong.wav");
+    const locked = new Audio("/sounds/locked.wav");
+    const winGame = new Audio("/sounds/win.wav");
 
     //REACTIVE
     const cards = ref([]);
     const chosenCards = ref([]);
     const currStatus = computed(() => {
       if (cardPairsRemaining.value === 0) {
+        winGame.play();
         return "You Won! Congratulations!";
       } else {
         return `Card Pairs - ${cardPairsRemaining.value}`;
@@ -131,7 +136,11 @@ export default {
 
     //The name is self-explanatory, it changes the payload isisVisible to true
     const toggleFlipCard = (payload) => {
-      if (!cards.value[payload.position].isStarted) {
+      if (
+        !cards.value[payload.position].isStarted ||
+        chosenCards.value.length === 2
+      ) {
+        locked.play();
         return;
       } else {
         //you need to unpack the cards array with .value otherwise it gives you an error
@@ -156,8 +165,8 @@ export default {
     watch(
       chosenCards,
       (currVal) => {
-        //currVal stands for currentValue, I just prefer shorter names for arguments
-
+        //Here we are watching the current value for any changes, namely the chosen cards
+        console.log(chosenCards.value.length);
         if (currVal.length === 2) {
           const firstCard = currVal[0];
           const secondCard = currVal[1];
@@ -170,18 +179,11 @@ export default {
             //this makes it so that if you get match the wrong cards, the wrong card remains shortly revealed so the player has enough time to remember its position and try again
             wrongAnswer.play();
             setTimeout(() => {
-              cards.value.isStarted = false;
               cards.value[firstCard.position].isVisible = false;
               cards.value[secondCard.position].isVisible = false;
-              document.querySelector(".card").disabled = true;
+              chosenCards.value.length = 0;
             }, 2000);
           }
-
-          // currVal[0].positionValue === currVal[1].positionValue
-          //   ? (currStatus.value = "correct")
-          //   : (currStatus.value = "incorrect");
-
-          chosenCards.value.length = 0;
         }
       },
 
@@ -198,6 +200,8 @@ export default {
       startSound,
       correctAnswer,
       wrongAnswer,
+      locked,
+      winGame,
     };
   },
 };
@@ -213,8 +217,13 @@ export default {
 }
 
 body {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1000%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3cpath d='M 0%2c136 C 57.6%2c148.8 172.8%2c211.4 288%2c200 C 403.2%2c188.6 460.8%2c90 576%2c79 C 691.2%2c68 748.8%2c150.4 864%2c145 C 979.2%2c139.6 1036.8%2c28.2 1152%2c52 C 1267.2%2c75.8 1382.4%2c221.6 1440%2c264L1440 560L0 560z' fill='%23184a7e'%3e%3c/path%3e%3cpath d='M 0%2c280 C 96%2c334.8 288%2c545.6 480%2c554 C 672%2c562.4 768%2c346.4 960%2c322 C 1152%2c297.6 1344%2c410 1440%2c432L1440 560L0 560z' fill='%232264ab'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1000'%3e%3crect width='1440' height='560' fill='white'%3e%3c/rect%3e%3c/mask%3e%3c/defs%3e%3c/svg%3e");
-  background-repeat: no-repeat;
+  background-color: #1a0a2c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2000 1500'%3E%3Cdefs%3E%3Crect stroke='%231a0a2c' stroke-width='0.33' width='1' height='1' id='s'/%3E%3Cpattern id='a' width='3' height='3' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cuse fill='%231f0f30' href='%23s' y='2'/%3E%3Cuse fill='%231f0f30' href='%23s' x='1' y='2'/%3E%3Cuse fill='%23231434' href='%23s' x='2' y='2'/%3E%3Cuse fill='%23231434' href='%23s'/%3E%3Cuse fill='%23281939' href='%23s' x='2'/%3E%3Cuse fill='%23281939' href='%23s' x='1' y='1'/%3E%3C/pattern%3E%3Cpattern id='b' width='7' height='11' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%232c1e3d'%3E%3Cuse href='%23s'/%3E%3Cuse href='%23s' y='5' /%3E%3Cuse href='%23s' x='1' y='10'/%3E%3Cuse href='%23s' x='2' y='1'/%3E%3Cuse href='%23s' x='2' y='4'/%3E%3Cuse href='%23s' x='3' y='8'/%3E%3Cuse href='%23s' x='4' y='3'/%3E%3Cuse href='%23s' x='4' y='7'/%3E%3Cuse href='%23s' x='5' y='2'/%3E%3Cuse href='%23s' x='5' y='6'/%3E%3Cuse href='%23s' x='6' y='9'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='h' width='5' height='13' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%232c1e3d'%3E%3Cuse href='%23s' y='5'/%3E%3Cuse href='%23s' y='8'/%3E%3Cuse href='%23s' x='1' y='1'/%3E%3Cuse href='%23s' x='1' y='9'/%3E%3Cuse href='%23s' x='1' y='12'/%3E%3Cuse href='%23s' x='2'/%3E%3Cuse href='%23s' x='2' y='4'/%3E%3Cuse href='%23s' x='3' y='2'/%3E%3Cuse href='%23s' x='3' y='6'/%3E%3Cuse href='%23s' x='3' y='11'/%3E%3Cuse href='%23s' x='4' y='3'/%3E%3Cuse href='%23s' x='4' y='7'/%3E%3Cuse href='%23s' x='4' y='10'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='c' width='17' height='13' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%23312341'%3E%3Cuse href='%23s' y='11'/%3E%3Cuse href='%23s' x='2' y='9'/%3E%3Cuse href='%23s' x='5' y='12'/%3E%3Cuse href='%23s' x='9' y='4'/%3E%3Cuse href='%23s' x='12' y='1'/%3E%3Cuse href='%23s' x='16' y='6'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='d' width='19' height='17' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%231a0a2c'%3E%3Cuse href='%23s' y='9'/%3E%3Cuse href='%23s' x='16' y='5'/%3E%3Cuse href='%23s' x='14' y='2'/%3E%3Cuse href='%23s' x='11' y='11'/%3E%3Cuse href='%23s' x='6' y='14'/%3E%3C/g%3E%3Cg fill='%23352745'%3E%3Cuse href='%23s' x='3' y='13'/%3E%3Cuse href='%23s' x='9' y='7'/%3E%3Cuse href='%23s' x='13' y='10'/%3E%3Cuse href='%23s' x='15' y='4'/%3E%3Cuse href='%23s' x='18' y='1'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='e' width='47' height='53' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%231c0d3b'%3E%3Cuse href='%23s' x='2' y='5'/%3E%3Cuse href='%23s' x='16' y='38'/%3E%3Cuse href='%23s' x='46' y='42'/%3E%3Cuse href='%23s' x='29' y='20'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='f' width='59' height='71' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%231c0d3b'%3E%3Cuse href='%23s' x='33' y='13'/%3E%3Cuse href='%23s' x='27' y='54'/%3E%3Cuse href='%23s' x='55' y='55'/%3E%3C/g%3E%3C/pattern%3E%3Cpattern id='g' width='139' height='97' patternUnits='userSpaceOnUse' patternTransform='rotate(31 1000 750) scale(35.65) translate(-971.95 -728.96)'%3E%3Cg fill='%231c0d3b'%3E%3Cuse href='%23s' x='11' y='8'/%3E%3Cuse href='%23s' x='51' y='13'/%3E%3Cuse href='%23s' x='17' y='73'/%3E%3Cuse href='%23s' x='99' y='57'/%3E%3C/g%3E%3C/pattern%3E%3C/defs%3E%3Crect fill='url(%23a)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23b)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23h)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23c)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23d)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23e)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23f)' width='100%25' height='100%25'/%3E%3Crect fill='url(%23g)' width='100%25' height='100%25'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: cover;
+  background-attachment: fixed;
+  background-size: cover;
+  background-attachment: fixed;
   background-size: cover;
   display: flex;
   justify-content: center;
@@ -275,12 +284,12 @@ button {
   outline: none;
   background: #fff;
   color: rgb(36, 34, 129);
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 button:hover {
-  background: rgb(36, 34, 129);
+  background: #7c6c8f;
   color: rgb(255, 255, 255);
-  border: 2px solid rgb(36, 34, 129);
+  border: 2px solid #7c6c8f;
   border-radius: 10px;
 }
 
