@@ -60,16 +60,17 @@ export default {
     //   cards.value = _.shuffle(cards.value);
     // }
 
-    //the different values/pictures used
+    //The names of the cards are based on the names of the image files
+    //UPDATE: I decided to change the images
     const cardContent = [
-      "octopus",
-      "shark",
-      "starfish",
-      "turtle",
-      "shell",
-      "crab",
-      "seahorse",
-      "monster",
+      "tyrell",
+      "stark",
+      "white-walker",
+      "baratheon",
+      "dayne",
+      "martell",
+      "targaryen",
+      "lanister",
     ];
 
     cardContent.forEach((element) => {
@@ -108,8 +109,10 @@ export default {
     });
 
     const restartGame = () => {
+      // Shuffles the cards when the game starts
       cards.value = _.shuffle(cards.value);
 
+      //Plays the start sound, indicating that the game has begun
       startSound.play();
 
       cards.value = cards.value.map((card, index) => {
@@ -122,17 +125,6 @@ export default {
         };
       });
     };
-
-    // for (let i = 0; i < 16; i++) {
-    //I thought it was best to create an object instead of separately pushing the values
-    //same as below, if I don't use .value, it give gives the following error: Must use `.value` to read or write the value wrapped by `ref()`
-    //   cards.value.push({
-    //     value: 8,
-    //     isVisible: false,
-    //     position: i,
-    //     isCorrect: false,
-    //   });
-    // }
 
     //The name is self-explanatory, it changes the payload isisVisible to true
     const toggleFlipCard = (payload) => {
@@ -166,7 +158,6 @@ export default {
       chosenCards,
       (currVal) => {
         //Here we are watching the current value for any changes, namely the chosen cards
-        console.log(chosenCards.value.length);
         if (currVal.length === 2) {
           const firstCard = currVal[0];
           const secondCard = currVal[1];
@@ -174,6 +165,7 @@ export default {
           if (firstCard.positionValue === secondCard.positionValue) {
             cards.value[firstCard.position].isCorrect = true;
             cards.value[secondCard.position].isCorrect = true;
+            chosenCards.value.length = 0;
             correctAnswer.play();
           } else {
             //this makes it so that if you get match the wrong cards, the wrong card remains shortly revealed so the player has enough time to remember its position and try again
@@ -181,8 +173,9 @@ export default {
             setTimeout(() => {
               cards.value[firstCard.position].isVisible = false;
               cards.value[secondCard.position].isVisible = false;
+              //this is implemented here so I can restrict the number of cards selected at 1.5 seconds, as well as the first if statement in the toggleFlipCard function
               chosenCards.value.length = 0;
-            }, 2000);
+            }, 1500);
           }
         }
       },
