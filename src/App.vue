@@ -1,10 +1,11 @@
 <template>
   <div class="container">
     <h1>Memory-Spiel</h1>
-    <h3 v-if="!isStarted" class="info">
+    <h3 class="info" v-if="gameStarted">
       {{ currStatus }}
     </h3>
-    <section class="board">
+    <button @click="initializeGame" v-if="!gameStarted">Get Started</button>
+    <section class="board" v-if="gameStarted">
       <!--this is the card component and I'm looping through to generate 16 cards, while passing the props, similar to react-->
       <Card
         v-for="(card, idx) in cards"
@@ -17,8 +18,8 @@
         @select-card="toggleFlipCard"
       />
     </section>
-    <section class="board-ctrl">
-      <button @click="restartGame">New Game</button>
+    <section class="board-ctrl" v-if="gameStarted">
+      <button @click="startGame">{{ buttonStatus }}</button>
     </section>
   </div>
 </template>
@@ -30,12 +31,21 @@ import Card from "./components/Card.vue";
 
 export default {
   name: "App",
+  data() {
+    return {
+      gameStarted: false,
+    };
+  },
+  methods: {
+    initializeGame() {
+      this.gameStarted = true;
+    },
+  },
   components: {
     Card,
   },
   setup() {
     //wrap the array with the ref method because this is not "reactive" as with react/svelte, this is just regular JS
-
     //SOUNDS
     const startSound = new Audio("/sounds/start.wav");
     const correctAnswer = new Audio("/sounds/correct.wav");
@@ -46,6 +56,9 @@ export default {
     //REACTIVE
     const cards = ref([]);
     const chosenCards = ref([]);
+    const buttonStatus = computed(() => {
+      return !cards.value[0].isStarted ? "New Game" : "Restart Game";
+    });
     const currStatus = computed(() => {
       if (cardPairsRemaining.value === 0) {
         winGame.play();
@@ -56,7 +69,7 @@ export default {
       ) {
         return `Game Started! Pairs Remaining - ${cardPairsRemaining.value}`;
       } else {
-        return 'Click "New Game" to start or restart the game.';
+        return 'Click "New Game" to start the game.';
       }
     });
 
@@ -108,11 +121,9 @@ export default {
       return cardsRemaining / 2;
     });
 
-    const restartGame = () => {
+    const startGame = () => {
       // Shuffles the cards when the game starts
       cards.value = _.shuffle(cards.value);
-
-      console.log(cards.value[0].isStarted);
 
       //Plays the start sound, indicating that the game has begun
       startSound.play();
@@ -130,8 +141,6 @@ export default {
 
     //The name is self-explanatory, it changes the payload isisVisible to true
     const toggleFlipCard = (payload) => {
-      // console.log(cards.value[payload.position]);
-
       //this if statement makes sure that you can't click on cards already guessed, it was quite an annoying bug
       if (cards.value[payload.position].isCorrect) {
         return;
@@ -200,13 +209,14 @@ export default {
       toggleFlipCard,
       chosenCards,
       currStatus,
-      restartGame,
+      startGame,
       startSound,
       correctAnswer,
       wrongAnswer,
       locked,
       winGame,
       cardPairsRemaining,
+      buttonStatus,
     };
   },
 };
@@ -305,7 +315,23 @@ img {
 .board-ctrl {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   max-height: 100%;
+  width: 50%;
+}
+
+/* Media Queries - Responsive Design */
+@media all and (max-width: 500px) {
+  .board {
+    grid-template-columns: repeat(4, 60px);
+    grid-template-rows: repeat(4, 60px);
+    grid-column-gap: 15px;
+    grid-row-gap: 15px;
+  }
+
+  .info {
+    width: 70%;
+  }
 }
 </style>

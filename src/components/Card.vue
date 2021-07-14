@@ -1,7 +1,7 @@
-<template>
+<template v-if="isStarted">
   <div class="card" :class="flipCard" @click="toggleSelectCard">
     <div class="card-side card-front">
-      <img :src="`/pictures/${value}.png`" :alt="value" />
+      <img class="card-img" :src="`/pictures/${value}.png`" :alt="value" />
     </div>
     <div class="card-side card-back"></div>
   </div>
@@ -72,6 +72,12 @@ export default {
   background-color: #000;
 }
 
+.card-img {
+  flex-shrink: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .card-side {
   width: 100%;
   height: 100%;
@@ -85,5 +91,14 @@ export default {
   width: 100%;
   height: 100%;
   background-size: contain;
+}
+
+@media all and (max-width: 500px) {
+  .card-side.card-back {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
 }
 </style>
