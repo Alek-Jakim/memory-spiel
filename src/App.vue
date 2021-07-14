@@ -54,7 +54,7 @@ export default {
         cardPairsRemaining.value > 0 &&
         cards.value[cards.value.length - 1].isStarted
       ) {
-        return `Pairs Remaining - ${cardPairsRemaining.value}`;
+        return `Game Started! Pairs Remaining - ${cardPairsRemaining.value}`;
       } else {
         return 'Click "New Game" to start or restart the game.';
       }
