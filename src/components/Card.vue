@@ -57,7 +57,7 @@ export default {
 <style>
 .card {
   position: relative;
-  transition: 0.5s transform ease-in;
+  transition: 0.2s transform ease-in-out;
   transform-style: preserve-3d;
 }
 
